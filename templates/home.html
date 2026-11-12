@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}NeuroCardioAI - Advanced Stroke Prediction System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row min-vh-100 align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <h1 class="display-3 fw-bold mb-4">
+                    Advanced <span class="text-primary">Stroke Prediction</span> with AI
+                </h1>
+                <p class="lead mb-4">
+                    NeuroCardioAI combines state-of-the-art machine learning and medical imaging 
+                    to provide accurate stroke risk assessment for better healthcare outcomes.
+                </p>
+                <div class="d-flex gap-3">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('main.prediction') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-stethoscope"></i> Start Prediction
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-plus"></i> Get Started
+                        </a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="stats mt-5">
+                    <div class="row">
+                        <div class="col-4">
+                            <h3 class="text-primary">98.5%</h3>
+                            <p>Accuracy Rate</p>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="text-primary">10K+</h3>
+                            <p>Patients Analyzed</p>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="text-primary">24/7</h3>
+                            <p>Real-time Analysis</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="hero-image">
+                    <div class="floating-card card-1">
+                        <i class="fas fa-brain"></i>
+                        <span>Brain Analysis</span>
+                    </div>
+                    <div class="floating-card card-2">
+                        <i class="fas fa-heart"></i>
+                        <span>Heart Analysis</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section py-5">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5 fw-bold">Why Choose NeuroCardioAI?</h2>
+            <p class="lead">Cutting-edge technology meets medical expertise</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>Multi-Model AI</h3>
+                    <p>Ensemble of ML, ANN, and CNN models for highest accuracy</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mri"></i>
+                    </div>
+                    <h3>MRI Analysis</h3>
+                    <p>Advanced Grad-CAM visualization for medical imaging</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Real-time Tracking</h3>
+                    <p>Monitor your health metrics and risk factors</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="400">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h3>Detailed Reports</h3>
+                    <p>Comprehensive PDF reports with doctor recommendations</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="500">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-3d"></i>
+                    </div>
+                    <h3>3D Visualization</h3>
+                    <p>Interactive 3D models of brain and heart</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="600">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>HIPAA Compliant</h3>
+                    <p>Your data is secure and encrypted</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-it-works py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5 fw-bold">How It Works</h2>
+            <p class="lead">Simple steps to get your stroke risk assessment</p>
+        </div>
+        <div class="row">
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <i class="fas fa-user-plus step-icon"></i>
+                    <h4>Create Account</h4>
+                    <p>Register with your basic information</p>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <i class="fas fa-notes-medical step-icon"></i>
+                    <h4>Enter Details</h4>
+                    <p>Provide medical history and risk factors</p>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <i class="fas fa-microscope step-icon"></i>
+                    <h4>AI Analysis</h4>
+                    <p>Our models analyze your data in real-time</p>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <i class="fas fa-file-medical step-icon"></i>
+                    <h4>Get Results</h4>
+                    <p>Receive detailed report and recommendations</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials py-5">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5 fw-bold">What Healthcare Professionals Say</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="testimonial-card">
+                    <div class="quote">
+                        <i class="fas fa-quote-left"></i>
+                    </div>
+                    <p>"NeuroCardioAI has revolutionized how we assess stroke risk. The accuracy is remarkable."</p>
+                    <div class="doctor-info">
+                        
+                            <h5>Dr. Sarah Johnson</h5>
+                            <p>Neurologist, City Hospital</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="testimonial-card">
+                    <div class="quote">
+                        <i class="fas fa-quote-left"></i>
+                    </div>
+                    <p>"The MRI analysis with Grad-CAM visualization helps us identify issues early."</p>
+                    <div class="doctor-info">
+                            <h5>Dr. Michael Chen</h5>
+                            <p>Cardiologist, Medical Center</p>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="testimonial-card">
+                    <div class="quote">
+                        <i class="fas fa-quote-left"></i>
+                    </div>
+                    <p>"Excellent tool for preventive care. My patients love the detailed reports."</p>
+                    <div class="doctor-info">
+                        
+                            <h5>Dr. Emily Rodriguez</h5>
+                            <p>Family Physician</p>
+                    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8" data-aos="fade-right">
+                <h2 class="display-6 fw-bold">Ready to take control of your health?</h2>
+                <p class="lead">Join thousands of patients who trust NeuroCardioAI for stroke risk assessment.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end" data-aos="fade-left">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.prediction') }}" class="btn btn-light btn-lg">
+                        Start Now <i class="fas fa-arrow-right"></i>
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg">
+                        Get Started <i class="fas fa-arrow-right"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

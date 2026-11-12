@@ -1,0 +1,572 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - NeuroCardioAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    .admin-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+    
+    .admin-sidebar {
+        width: 280px;
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        color: white;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        overflow-y: auto;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        box-shadow: 2px 0 20px rgba(0,0,0,0.1);
+    }
+    
+    .admin-sidebar.collapsed {
+        width: 80px;
+    }
+    
+    .admin-main {
+        flex: 1;
+        margin-left: 280px;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+        min-height: 100vh;
+        padding: 20px;
+    }
+    
+    .admin-main.expanded {
+        margin-left: 80px;
+    }
+    
+    .sidebar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .sidebar-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .sidebar-header .toggle-sidebar {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.25rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+    }
+    
+    .sidebar-header .toggle-sidebar:hover {
+        background: rgba(255,255,255,0.1);
+    }
+    
+    .sidebar-menu {
+        padding: 1.5rem 0;
+    }
+    
+    .sidebar-menu .menu-title {
+        padding: 0 1.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: rgba(255,255,255,0.5);
+    }
+    
+    .sidebar-menu .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        color: rgba(255,255,255,0.7);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .sidebar-menu .menu-item i {
+        width: 20px;
+        margin-right: 1rem;
+        font-size: 1.1rem;
+    }
+    
+    .sidebar-menu .menu-item:hover {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        padding-left: 2rem;
+    }
+    
+    .sidebar-menu .menu-item.active {
+        background: #4361ee;
+        color: white;
+        border-left: 3px solid white;
+    }
+    
+    .admin-top-bar {
+        background: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+        color: #1a1a2e;
+    }
+    
+    .admin-profile {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .admin-profile img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .admin-content {
+        padding: 20px 0;
+    }
+    
+    /* Stats Cards */
+    .admin-stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .admin-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .admin-stat-info h4 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        color: #1a1a2e;
+    }
+    
+    .admin-stat-info p {
+        color: #6c757d;
+        margin-bottom: 0;
+        font-size: 0.9rem;
+    }
+    
+    .admin-stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+    }
+    
+    /* Tables */
+    .admin-table {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+    
+    .admin-table thead th {
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+        padding: 1rem;
+        font-weight: 600;
+        color: #1a1a2e;
+        font-size: 0.9rem;
+    }
+    
+    .admin-table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .admin-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .admin-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .admin-table .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 500;
+    }
+    
+    /* Action Buttons */
+    .admin-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .admin-actions .btn {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.875rem;
+        border-radius: 5px;
+    }
+    
+    /* Model Performance Cards */
+    .model-perf-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .model-perf-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .model-perf-card h6 {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #4361ee;
+        font-size: 1rem;
+    }
+    
+    .metric-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .metric-row:last-child {
+        border-bottom: none;
+    }
+    
+    .metric-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .metric-value {
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+    
+    /* Section Headers */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-header h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1a1a2e;
+        margin: 0;
+    }
+    
+    .section-header .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Pagination */
+    .pagination {
+        margin-top: 2rem;
+        justify-content: center;
+    }
+    
+    .page-link {
+        color: #4361ee;
+        border: none;
+        padding: 0.5rem 1rem;
+        margin: 0 0.25rem;
+        border-radius: 5px;
+    }
+    
+    .page-item.active .page-link {
+        background: #4361ee;
+        color: white;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .admin-sidebar {
+            transform: translateX(-100%);
+        }
+        
+        .admin-sidebar.show {
+            transform: translateX(0);
+        }
+        
+        .admin-main {
+            margin-left: 0;
+        }
+        
+        .admin-content {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    <!-- Sidebar -->
+    <div class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
+            <h3>NeuroCardioAI</h3>
+            <button class="toggle-sidebar" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-menu">
+            <div class="menu-title">Main</div>
+            <a href="{{ url_for('admin.dashboard') }}" class="menu-item active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('admin.patients') }}" class="menu-item">
+                <i class="fas fa-users"></i>
+                <span>Patients</span>
+            </a>
+            
+            <div class="menu-title">Models</div>
+            <a href="{{ url_for('admin.model_performance') }}" class="menu-item">
+                <i class="fas fa-brain"></i>
+                <span>Model Performance</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="admin-main" id="adminMain">
+        <!-- Top Bar -->
+        <div class="admin-top-bar">
+            <h4 class="page-title">Admin Dashboard</h4>
+            <div class="admin-profile">
+                <span>Welcome, {{ current_user.full_name or current_user.username }}</span>
+                
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="admin-content">
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-info">
+                            <h4>{{ stats.total_users }}</h4>
+                            <p>Total Users</p>
+                        </div>
+                        <div class="admin-stat-icon" style="background: linear-gradient(135deg, #4361ee, #3a0ca3);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-info">
+                            <h4>{{ stats.total_patients }}</h4>
+                            <p>Total Patients</p>
+                        </div>
+                        <div class="admin-stat-icon" style="background: linear-gradient(135deg, #06d6a0, #1b9aaa);">
+                            <i class="fas fa-user-injured"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-info">
+                            <h4>{{ stats.total_predictions }}</h4>
+                            <p>Predictions</p>
+                        </div>
+                        <div class="admin-stat-icon" style="background: linear-gradient(135deg, #ef476f, #bc4c7c);">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Predictions -->
+            <div class="section-header">
+                <h3><i class="fas fa-history me-2" style="color: #4361ee;"></i>Recent Predictions</h3>
+                <a href="{{ url_for('admin.patients') }}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-eye"></i> View All Patients
+                </a>
+            </div>
+            
+            <div class="card admin-table mb-5">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table admin-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Patient</th>
+                                    <th>Type</th>
+                                    <th>Risk Score</th>
+                                    <th>Risk Level</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for prediction in recent_predictions %}
+                                <tr>
+                                    <td><strong>#{{ prediction.id }}</strong></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-user-circle me-2" style="color: #4361ee; font-size: 1.2rem;"></i>
+                                            <div>
+                                                <strong>{{ prediction.user.full_name or prediction.user.username }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ prediction.user.email }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'primary' if prediction.prediction_type == 'brain' else 'danger' }}">
+                                            <i class="fas fa-{{ 'brain' if prediction.prediction_type == 'brain' else 'heart' }} me-1"></i>
+                                            {{ prediction.prediction_type|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress flex-grow-1 me-2" style="height: 8px; width: 100px;">
+                                                <div class="progress-bar bg-{{ 'danger' if prediction.risk_level == 'High' else 'warning' if prediction.risk_level == 'Moderate' else 'success' }}" 
+                                                     style="width: {{ prediction.risk_score }}%"></div>
+                                            </div>
+                                            <span>{{ "%.1f"|format(prediction.risk_score) }}%</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'danger' if prediction.risk_level == 'High' else 'warning' if prediction.risk_level == 'Moderate' else 'success' }}">
+                                            {{ prediction.risk_level }}
+                                        </span>
+                                    </td>
+                                    <td>{{ prediction.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <div class="admin-actions">
+                                            <a href="{{ url_for('main.view_result', id=prediction.id) }}" 
+                                               class="btn btn-sm btn-info" title="View">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Model Performance -->
+            <div class="section-header">
+                <h3><i class="fas fa-chart-line me-2" style="color: #4361ee;"></i>Model Performance</h3>
+            </div>
+            
+            <div class="row g-4">
+                {% for perf in model_perf %}
+                <div class="col-md-4">
+                    <div class="model-perf-card">
+                        <h6>
+                            <i class="fas fa-{{ 'brain' if perf.model_type == 'brain' else 'heart' }} me-2"></i>
+                            {{ perf.model_name }}
+                            <small class="text-muted ms-2">({{ perf.model_type|title }})</small>
+                        </h6>
+                        <div class="metric-row">
+                            <span class="metric-label">Accuracy:</span>
+                            <span class="metric-value">{{ "%.2f"|format(perf.accuracy*100) }}%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Precision:</span>
+                            <span class="metric-value">{{ "%.2f"|format(perf.precision*100) }}%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Recall:</span>
+                            <span class="metric-value">{{ "%.2f"|format(perf.recall*100) }}%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">F1 Score:</span>
+                            <span class="metric-value">{{ "%.2f"|format(perf.f1_score*100) }}%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">AUC-ROC:</span>
+                            <span class="metric-value">{{ "%.3f"|format(perf.auc_roc) }}</span>
+                        </div>
+                        <div class="text-muted small mt-3">
+                            <i class="fas fa-clock me-1"></i>
+                            Updated: {{ perf.timestamp.strftime('%Y-%m-%d') }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Toggle sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('adminSidebar');
+    const main = document.getElementById('adminMain');
+    sidebar.classList.toggle('collapsed');
+    main.classList.toggle('expanded');
+}
+
+// Auto-refresh stats every 30 seconds (optional)
+setInterval(() => {
+    fetch('/admin/api/stats')
+    .then(response => response.json())
+    .then(data => {
+        // Update stats if needed
+        console.log('Stats updated:', data);
+    })
+    .catch(error => console.error('Error refreshing stats:', error));
+}, 30000);
+</script>
+{% endblock %}

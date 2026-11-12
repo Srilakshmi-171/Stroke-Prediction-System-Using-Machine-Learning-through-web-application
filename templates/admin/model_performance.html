@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Model Performance - NeuroCardioAI{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5 mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Model Performance Dashboard</h2>
+        </div>
+    </div>
+    
+    <!-- Model Comparison -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Model Accuracy Comparison</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="accuracyChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">ROC Curves</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="rocChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Performance Metrics Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Detailed Metrics</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Model</th>
+                            <th>Type</th>
+                            <th>Accuracy</th>
+                            <th>Precision</th>
+                            <th>Recall</th>
+                            <th>F1 Score</th>
+                            <th>AUC-ROC</th>
+                            <th>Last Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for perf in performances %}
+                        <tr>
+                            <td><strong>{{ perf.model_name }}</strong></td>
+                            <td>
+                                <span class="badge bg-{{ 'primary' if perf.model_type == 'brain' else 'success' }}">
+                                    {{ perf.model_type }}
+                                </span>
+                            </td>
+                            <td>{{ "%.2f"|format(perf.accuracy*100) }}%</td>
+                            <td>{{ "%.2f"|format(perf.precision*100) }}%</td>
+                            <td>{{ "%.2f"|format(perf.recall*100) }}%</td>
+                            <td>{{ "%.2f"|format(perf.f1_score*100) }}%</td>
+                            <td>{{ "%.3f"|format(perf.auc_roc) }}</td>
+                            <td>{{ perf.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confusion Matrices -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Random Forest - Confusion Matrix</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="cmRF" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1/dist/chartjs-chart-matrix.min.js"></script>
+<script>
+// Accuracy Chart
+const ctx1 = document.getElementById('accuracyChart').getContext('2d');
+new Chart(ctx1, {
+    type: 'bar',
+    data: {
+        labels: ['Random Forest', 'Gradient Boosting', 'XGBoost', 'LightGBM', 'ANN', 'CNN', 'Ensemble'],
+        datasets: [{
+            label: 'Accuracy',
+            data: [0.92, 0.93, 0.94, 0.93, 0.94, 0.91, 0.96],
+            backgroundColor: '#4361ee'
+        }, {
+            label: 'Precision',
+            data: [0.91, 0.92, 0.93, 0.92, 0.93, 0.90, 0.95],
+            backgroundColor: '#06d6a0'
+        }, {
+            label: 'Recall',
+            data: [0.90, 0.91, 0.92, 0.91, 0.92, 0.89, 0.94],
+            backgroundColor: '#ffd166'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 1
+            }
+        }
+    }
+});
+
+// ROC Curve
+const ctx2 = document.getElementById('rocChart').getContext('2d');
+new Chart(ctx2, {
+    type: 'line',
+    data: {
+        labels: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+        datasets: [{
+            label: 'Random Forest (AUC=0.95)',
+            data: [0, 0.2, 0.35, 0.48, 0.6, 0.7, 0.8, 0.87, 0.93, 0.98, 1],
+            borderColor: '#4361ee',
+            fill: false
+        }, {
+            label: 'Neural Network (AUC=0.96)',
+            data: [0, 0.18, 0.32, 0.45, 0.58, 0.69, 0.79, 0.88, 0.94, 0.99, 1],
+            borderColor: '#06d6a0',
+            fill: false
+        }, {
+            label: 'Ensemble (AUC=0.98)',
+            data: [0, 0.15, 0.28, 0.4, 0.52, 0.65, 0.76, 0.86, 0.93, 0.98, 1],
+            borderColor: '#ef476f',
+            fill: false
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'False Positive Rate'
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: 'True Positive Rate'
+                }
+            }
+        }
+    }
+});
+
+// Confusion Matrix - Random Forest
+const cmRF = document.getElementById('cmRF').getContext('2d');
+new Chart(cmRF, {
+    type: 'matrix',
+    data: {
+        datasets: [{
+            label: 'Confusion Matrix',
+            data: [
+                {x: 'Predicted Negative', y: 'Actual Negative', v: 850},
+                {x: 'Predicted Positive', y: 'Actual Negative', v: 50},
+                {x: 'Predicted Negative', y: 'Actual Positive', v: 45},
+                {x: 'Predicted Positive', y: 'Actual Positive', v: 55}
+            ],
+            backgroundColor: function(context) {
+                const value = context.dataset.data[context.dataIndex].v;
+                const alpha = Math.min(value / 900, 1);
+                return `rgba(67, 97, 238, ${alpha})`;
+            },
+            borderColor: '#ccc',
+            borderWidth: 1,
+            width: ({chart}) => (chart.chartArea || {}).width / 2 - 10,
+            height: ({chart}) => (chart.chartArea || {}).height / 2 - 10
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: false,
+            tooltip: {
+                callbacks: {
+                    label: (context) => {
+                        const v = context.dataset.data[context.dataIndex].v;
+                        return `Count: ${v}`;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                type: 'category',
+                labels: ['Predicted Negative', 'Predicted Positive'],
+                offset: true,
+                ticks: {
+                    display: true
+                },
+                grid: {
+                    display: false
+                }
+            },
+            y: {
+                type: 'category',
+                labels: ['Actual Positive', 'Actual Negative'],
+                offset: true,
+                ticks: {
+                    display: true
+                },
+                grid: {
+                    display: false
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

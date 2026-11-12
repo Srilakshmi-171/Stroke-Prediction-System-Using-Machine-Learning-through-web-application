@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Grad-CAM Explainability</h2>
+
+<div class="mri-container">
+{% for g in gradcams %}
+<div class="mri-card">
+    <img src="{{ g.heatmap_path }}">
+    <p>{{ g.explanation_score }}%</p>
+</div>
+{% endfor %}
+</div>
+
+{% endblock %}

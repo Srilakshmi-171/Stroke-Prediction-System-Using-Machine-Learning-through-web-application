@@ -1,0 +1,357 @@
+/* Admin Panel Styles */
+
+:root {
+    --admin-primary: #4361ee;
+    --admin-success: #06d6a0;
+    --admin-warning: #ffd166;
+    --admin-danger: #ef476f;
+    --admin-dark: #1a1a2e;
+    --admin-sidebar: #2b2d42;
+}
+
+/* Admin Layout */
+.admin-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.admin-sidebar {
+    width: 280px;
+    background: var(--admin-sidebar);
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.admin-sidebar.collapsed {
+    width: 80px;
+}
+
+.admin-main {
+    flex: 1;
+    margin-left: 280px;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.admin-main.expanded {
+    margin-left: 80px;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-header .toggle-sidebar {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.sidebar-header .toggle-sidebar:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Sidebar Menu */
+.sidebar-menu {
+    padding: 1.5rem 0;
+}
+
+.sidebar-menu .menu-title {
+    padding: 0 1.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-menu .menu-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-menu .menu-item i {
+    width: 20px;
+    margin-right: 1rem;
+    font-size: 1.1rem;
+}
+
+.sidebar-menu .menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding-left: 2rem;
+}
+
+.sidebar-menu .menu-item.active {
+    background: var(--admin-primary);
+    color: white;
+    border-left: 3px solid white;
+}
+
+/* Admin Top Bar */
+.admin-top-bar {
+    background: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--admin-dark);
+}
+
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Admin Content */
+.admin-content {
+    padding: 2rem;
+}
+
+/* Stats Cards */
+.admin-stat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--box-shadow-hover);
+}
+
+.admin-stat-info h4 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--admin-dark);
+}
+
+.admin-stat-info p {
+    color: var(--gray-color);
+    margin-bottom: 0;
+}
+
+.admin-stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: white;
+}
+
+/* Tables */
+.admin-table {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.admin-table thead th {
+    background: #f8f9fa;
+    border-bottom: none;
+    padding: 1rem;
+    font-weight: 600;
+    color: var(--admin-dark);
+}
+
+.admin-table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.admin-table .badge {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-weight: 500;
+}
+
+/* Action Buttons */
+.admin-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.admin-actions .btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* Charts Container */
+.chart-container {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: var(--box-shadow);
+    margin-bottom: 1.5rem;
+}
+
+.chart-container h5 {
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+/* Patient Details Modal */
+.patient-details {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.detail-group {
+    margin-bottom: 1.5rem;
+}
+
+.detail-group h6 {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--admin-primary);
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.detail-item {
+    background: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 10px;
+}
+
+.detail-item .label {
+    font-size: 0.875rem;
+    color: var(--gray-color);
+    margin-bottom: 0.25rem;
+}
+
+.detail-item .value {
+    font-weight: 600;
+    color: var(--admin-dark);
+}
+
+/* Model Performance Cards */
+.model-perf-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: var(--box-shadow);
+    transition: all 0.3s ease;
+}
+
+.model-perf-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--box-shadow-hover);
+}
+
+.model-perf-card h6 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--admin-primary);
+}
+
+.metric-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.metric-row:last-child {
+    border-bottom: none;
+}
+
+.metric-label {
+    color: var(--gray-color);
+}
+
+.metric-value {
+    font-weight: 600;
+    color: var(--admin-dark);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .admin-sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .admin-main {
+        margin-left: 0;
+    }
+    
+    .admin-content {
+        padding: 1rem;
+    }
+    
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+}

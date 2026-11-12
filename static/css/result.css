@@ -1,0 +1,158 @@
+/* Result Page Styles */
+
+.risk-card {
+    background: white;
+    border-radius: 30px !important;
+    overflow: hidden;
+}
+
+.risk-card.low-risk {
+    background: linear-gradient(135deg, #06d6a0 0%, #1b9aaa 100%);
+    color: white;
+}
+
+.risk-card.moderate-risk {
+    background: linear-gradient(135deg, #ffd166 0%, #ffb347 100%);
+    color: var(--dark-color);
+}
+
+.risk-card.high-risk {
+    background: linear-gradient(135deg, #ef476f 0%, #bc4c7c 100%);
+    color: white;
+}
+
+.risk-meter {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.risk-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+/* Model Cards */
+.model-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: var(--box-shadow);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.model-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--box-shadow-hover);
+}
+
+.model-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 2rem;
+}
+
+.model-card h5 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.model-prediction {
+    margin: 1rem 0;
+}
+
+.model-prediction .display-6 {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.model-card .progress {
+    height: 10px;
+    border-radius: 5px;
+    margin: 1rem 0;
+}
+
+.model-card .progress-bar {
+    border-radius: 5px;
+    transition: width 1s ease;
+}
+
+/* Recommendations List */
+.recommendations-list {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.recommendation-item {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: var(--box-shadow);
+    transition: all 0.3s ease;
+}
+
+.recommendation-item:hover {
+    transform: translateX(10px);
+    box-shadow: var(--box-shadow-hover);
+}
+
+.recommendation-item i {
+    font-size: 2rem;
+    min-width: 50px;
+    text-align: center;
+}
+
+.recommendation-item h6 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.recommendation-item p {
+    color: var(--gray-color);
+    margin-bottom: 0;
+}
+
+/* Action Buttons */
+.btn-success {
+    background: var(--gradient-success);
+    border: none;
+    box-shadow: 0 5px 15px rgba(6, 214, 160, 0.3);
+}
+
+.btn-success:hover {
+    background: var(--gradient-success);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(6, 214, 160, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .model-card {
+        margin-bottom: 1rem;
+    }
+    
+    .recommendation-item {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+    }
+    
+    .recommendation-item i {
+        margin-bottom: 0.5rem;
+    }
+}

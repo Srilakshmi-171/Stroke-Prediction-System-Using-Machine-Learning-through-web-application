@@ -1,0 +1,339 @@
+/* ============================= */
+/* SETTINGS PAGE */
+/* ============================= */
+
+.settings-page{
+padding:30px;
+min-height:100vh;
+width:100%;
+color:#e6edf3;
+animation:fadePage 0.6s ease;
+}
+
+/* ============================= */
+/* PAGE TRANSITION */
+/* ============================= */
+
+@keyframes fadePage{
+from{
+opacity:0;
+transform:translateY(10px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+/* ============================= */
+/* PROFILE CARD */
+/* ============================= */
+
+.profile-avatar{
+width:50px;
+height:50px;
+border-radius:50%;
+background:linear-gradient(135deg,#007bff,#00c6ff);
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:20px;
+font-weight:bold;
+}
+
+/* ============================= */
+/* CARD DESIGN */
+/* ============================= */
+
+.settings-card{
+background:linear-gradient(145deg,#161b22,#0d1117);
+border:none;
+border-radius:14px;
+padding:25px;
+color:white;
+position:relative;
+overflow:hidden;
+box-shadow:0 10px 25px rgba(0,0,0,0.4);
+transition:all 0.4s ease;
+animation:cardFade 0.7s ease;
+}
+
+/* Hover effect */
+
+.settings-card:hover{
+transform:translateY(-6px) scale(1.01);
+box-shadow:0 18px 35px rgba(0,0,0,0.6);
+}
+
+/* ============================= */
+/* ANIMATED GRADIENT BORDER */
+/* ============================= */
+
+.settings-card::before{
+content:"";
+position:absolute;
+top:-2px;
+left:-2px;
+right:-2px;
+bottom:-2px;
+background:linear-gradient(45deg,#00c6ff,#0072ff,#00ffa2,#00c6ff);
+background-size:400%;
+border-radius:14px;
+z-index:-1;
+animation:gradientMove 6s linear infinite;
+opacity:0.5;
+}
+
+@keyframes gradientMove{
+0%{background-position:0%}
+50%{background-position:100%}
+100%{background-position:0%}
+}
+
+/* ============================= */
+/* CARD FADE */
+/* ============================= */
+
+@keyframes cardFade{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+/* ============================= */
+/* SECTION TITLE */
+/* ============================= */
+
+.section-title{
+margin-bottom:20px;
+font-weight:600;
+font-size:18px;
+color:#e6edf3;
+}
+
+/* ============================= */
+/* INPUT FIELDS */
+/* ============================= */
+
+.form-control{
+background:#0d1117;
+border:1px solid #30363d;
+color:white;
+border-radius:8px;
+padding:10px;
+}
+
+.form-control::placeholder{
+color:#8b949e;
+}
+
+.form-control:focus{
+background:#0d1117;
+color:white;
+border-color:#58a6ff;
+box-shadow:0 0 5px rgba(88,166,255,0.5);
+}
+
+/* ============================= */
+/* BUTTON STYLE */
+/* ============================= */
+
+.btn{
+border-radius:8px;
+font-weight:500;
+transition:all 0.3s ease;
+position:relative;
+overflow:hidden;
+}
+
+/* Primary Button */
+
+.btn-primary{
+background:#0d6efd;
+border:none;
+}
+
+.btn-primary:hover{
+box-shadow:
+0 0 10px #0d6efd,
+0 0 20px #0d6efd,
+0 0 40px #0d6efd;
+transform:translateY(-2px);
+}
+
+/* Warning Button */
+
+.btn-warning{
+background:#ffc107;
+border:none;
+color:black;
+}
+
+.btn-warning:hover{
+box-shadow:
+0 0 10px #ffc107,
+0 0 20px #ffc107,
+0 0 40px #ffc107;
+transform:translateY(-2px);
+}
+
+/* Danger Button */
+
+.btn-danger:hover{
+box-shadow:
+0 0 10px #dc3545,
+0 0 20px #dc3545,
+0 0 40px #dc3545;
+transform:translateY(-2px);
+}
+
+/* ============================= */
+/* ACCOUNT ACTIVITY */
+/* ============================= */
+
+.activity-list{
+list-style:none;
+padding:0;
+margin:0;
+}
+
+.activity-list li{
+display:flex;
+justify-content:space-between;
+padding:10px 0;
+border-bottom:1px solid #30363d;
+font-size:14px;
+}
+
+/* ============================= */
+/* SECURITY SECTION */
+/* ============================= */
+
+.security-item{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px 0;
+border-bottom:1px solid #30363d;
+}
+
+/* ============================= */
+/* TABLE DESIGN */
+/* ============================= */
+
+.table{
+margin-top:10px;
+color:white;
+}
+
+.table th{
+color:#8b949e;
+font-weight:500;
+}
+
+.table td{
+vertical-align:middle;
+}
+
+/* ============================= */
+/* DARK MODE TOGGLE SWITCH */
+/* ============================= */
+
+.switch{
+position:relative;
+display:inline-block;
+width:50px;
+height:25px;
+}
+
+.switch input{
+display:none;
+}
+
+.slider{
+position:absolute;
+cursor:pointer;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:#30363d;
+transition:.4s;
+border-radius:34px;
+}
+
+.slider:before{
+position:absolute;
+content:"";
+height:19px;
+width:19px;
+left:3px;
+bottom:3px;
+background:white;
+transition:.4s;
+border-radius:50%;
+}
+
+input:checked + .slider{
+background:#0d6efd;
+}
+
+input:checked + .slider:before{
+transform:translateX(24px);
+}
+
+/* ============================= */
+/* BOOTSTRAP SWITCH */
+/* ============================= */
+
+.form-check-input{
+cursor:pointer;
+}
+
+/* ============================= */
+/* DANGER ZONE */
+/* ============================= */
+
+.border-danger{
+border:1px solid rgba(220,53,69,0.5)!important;
+background:rgba(220,53,69,0.05);
+border-radius:10px;
+}
+
+/* ============================= */
+/* DARK MODE SUPPORT */
+/* ============================= */
+
+.dark-mode{
+background:#0d1117;
+color:#e6edf3;
+}
+
+.dark-mode .settings-card{
+background:#161b22;
+}
+
+.dark-mode .form-control{
+background:#0d1117;
+color:white;
+border-color:#30363d;
+}
+
+/* ============================= */
+/* RESPONSIVE */
+/* ============================= */
+
+@media (max-width:992px){
+
+.settings-page{
+margin-left:0;
+padding:20px;
+}
+
+}

@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Register - NeuroCardioAI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-lg" data-aos="fade-up">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="mb-0"><i class="fas fa-user-plus"></i> Create Account</h3>
+                </div>
+                <div class="card-body p-5">
+                    <form method="POST" action="{{ url_for('auth.register') }}" id="registerForm">
+                        {{ form.hidden_tag() if form }}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">
+                                    <i class="fas fa-user"></i> Name <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="name" 
+                                       name="name" required placeholder="Enter your full name">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="fas fa-at"></i> Username <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="username" 
+                                       name="username" required placeholder="Choose a username">
+                                <small id="usernameHelp" class="form-text text-muted">This will be your login ID</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope"></i> Email Address <span class="text-danger">*</span>
+                            </label>
+                            <input type="email" class="form-control" id="email" 
+                                   name="email" required placeholder="Enter your email">
+                        </div>
+                        
+                        <!-- Hidden full_name field for compatibility -->
+                        <input type="hidden" name="full_name" id="full_name">
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="age" class="form-label">
+                                    <i class="fas fa-calendar"></i> Age
+                                </label>
+                                <input type="number" class="form-control" id="age" 
+                                       name="age" min="1" max="120" placeholder="Your age">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="gender" class="form-label">
+                                    <i class="fas fa-venus-mars"></i> Gender
+                                </label>
+                                <select class="form-select" id="gender" name="gender">
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">
+                                <i class="fas fa-phone"></i> Phone Number
+                            </label>
+                            <input type="tel" class="form-control" id="phone" 
+                                   name="phone" placeholder="Enter your phone number">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="address" class="form-label">
+                                <i class="fas fa-map-marker-alt"></i> Address
+                            </label>
+                            <textarea class="form-control" id="address" name="address" 
+                                      rows="2" placeholder="Your address"></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock"></i> Password <span class="text-danger">*</span>
+                                </label>
+                                <input type="password" class="form-control" id="password" 
+                                       name="password" required placeholder="Create password">
+                                <div class="form-text">At least 8 characters with letters and numbers</div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="confirm_password" class="form-label">
+                                    <i class="fas fa-lock"></i> Confirm Password <span class="text-danger">*</span>
+                                </label>
+                                <input type="password" class="form-control" id="confirm_password" 
+                                       name="confirm_password" required placeholder="Confirm password">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                            <label class="form-check-label" for="terms">
+                                I agree to the <a href="{{ url_for('auth.terms') }}" class="text-primary">Terms of Service</a> and 
+                                <a href="{{ url_for('auth.privacy') }}" class="text-primary">Privacy Policy</a>
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <i class="fas fa-user-plus"></i> Create Account
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="mb-0">Already have an account? 
+                            <a href="{{ url_for('auth.login') }}" class="text-primary fw-bold">
+                                Login here
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirm_password').value;
+    const name = document.getElementById('name').value;
+    
+    // Set full_name from name field
+    document.getElementById('full_name').value = name;
+    
+    if (password !== confirm) {
+        e.preventDefault();
+        alert('Passwords do not match!');
+        return false;
+    }
+    
+    if (password.length < 8) {
+        e.preventDefault();
+        alert('Password must be at least 8 characters long!');
+        return false;
+    }
+    
+    if (!name.trim()) {
+        e.preventDefault();
+        alert('Name is required!');
+        return false;
+    }
+    
+    return true;
+});
+
+// Username availability check
+document.getElementById('username').addEventListener('blur', function() {
+    const username = this.value;
+    if (username.length > 3) {
+        fetch('/auth/api/check-username', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username: username})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                alert('Username already taken. Please choose another.');
+            }
+        });
+    }
+});
+
+// Email availability check
+document.getElementById('email').addEventListener('blur', function() {
+    const email = this.value;
+    if (email.includes('@')) {
+        fetch('/auth/api/check-email', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: email})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                alert('Email already registered. Please use another or login.');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

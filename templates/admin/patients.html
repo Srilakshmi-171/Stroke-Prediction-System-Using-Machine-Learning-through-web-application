@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Patients - NeuroCardioAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    <!-- Sidebar (same as dashboard) -->
+    <div class="admin-sidebar" id="adminSidebar">
+        <!-- ... sidebar content same as dashboard ... -->
+    </div>
+    
+    <!-- Main Content -->
+    <div class="admin-main">
+        <!-- Top Bar -->
+        <div class="admin-top-bar">
+            <h4 class="page-title">Patient Management</h4>
+            <div class="admin-profile">
+                <span>Welcome, {{ current_user.full_name }}</span>
+                
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="admin-content">
+            <!-- Filters -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="searchInput" 
+                                   placeholder="Search patients...">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="filterStatus">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="filterRisk">
+                                <option value="">All Risk Levels</option>
+                                <option value="High">High Risk</option>
+                                <option value="Moderate">Moderate Risk</option>
+                                <option value="Low">Low Risk</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary w-100" onclick="exportPatients()">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Patients Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Patient</th>
+                                    <th>Email</th>
+                                    <th>Age/Gender</th>
+                                    <th>Medical Record</th>
+                                    <th>Last Prediction</th>
+                                    <th>Risk Level</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for patient in patients.items %}
+                                <tr class="patient-row" data-id="{{ patient.user_id }}">
+                                    <td>#{{ patient.user_id }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                          
+                                            <div>
+                                                <strong>{{ patient.user.full_name or patient.user.username }}</strong>
+                                                <br>
+                                                <small>Joined: {{ patient.user.created_at.strftime('%Y-%m-%d') }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ patient.user.email }}</td>
+                                    <td>{{ patient.user.age or 'N/A' }} / {{ patient.user.gender or 'N/A' }}</td>
+                                    <td>{{ patient.medical_record_number or 'N/A' }}</td>
+                                    <td>
+                                        {% if patient.user.predictions %}
+                                            {{ patient.user.predictions[0].created_at.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            Never
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if patient.user.predictions %}
+                                            {% set last_pred = patient.user.predictions[0] %}
+                                            <span class="badge bg-{{ last_pred.risk_level|risk_color }}">
+                                                {{ last_pred.risk_level }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if patient.user.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="admin-actions">
+                                            <button class="btn btn-sm btn-info" onclick="viewPatient({{ patient.user_id }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-warning" onclick="editPatient({{ patient.user_id }})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-{{ 'success' if patient.user.is_active else 'secondary' }}" 
+                                                    onclick="toggleStatus({{ patient.user_id }})">
+                                                <i class="fas fa-{{ 'ban' if patient.user.is_active else 'check' }}"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    {% if patients.pages > 1 %}
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if patients.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.patients', page=patients.prev_num) }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for page_num in patients.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                                {% if page_num %}
+                                    {% if page_num == patients.page %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('admin.patients', page=page_num) }}">
+                                            {{ page_num }}
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if patients.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.patients', page=patients.next_num) }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Patient Details Modal -->
+<div class="modal fade" id="patientModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Patient Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="patientModalBody">
+                Loading...
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewPatient(userId) {
+    fetch(`/admin/patient/${userId}`)
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('patientModalBody').innerHTML = html;
+        new bootstrap.Modal(document.getElementById('patientModal')).show();
+    });
+}
+
+function editPatient(userId) {
+    window.location.href = `/admin/patient/${userId}/edit`;
+}
+
+function toggleStatus(userId) {
+    if (confirm('Toggle user status?')) {
+        fetch(`/admin/user/${userId}/toggle-status`, {
+            method: 'POST'
+        }).then(() => {
+            location.reload();
+        });
+    }
+}
+
+function exportPatients() {
+    window.location.href = '/admin/patients/export';
+}
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    document.querySelectorAll('.patient-row').forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+document.getElementById('filterStatus').addEventListener('change', filterTable);
+document.getElementById('filterRisk').addEventListener('change', filterTable);
+
+function filterTable() {
+    const status = document.getElementById('filterStatus').value;
+    const risk = document.getElementById('filterRisk').value;
+    
+    document.querySelectorAll('.patient-row').forEach(row => {
+        let show = true;
+        
+        if (status) {
+            const statusBadge = row.querySelector('td:nth-child(8) .badge').textContent;
+            if (status === 'active' && statusBadge !== 'Active') show = false;
+            if (status === 'inactive' && statusBadge !== 'Inactive') show = false;
+        }
+        
+        if (risk && show) {
+            const riskBadge = row.querySelector('td:nth-child(7) .badge');
+            if (riskBadge && !riskBadge.textContent.includes(risk)) show = false;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Terms of Service - NeuroCardioAI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-primary">Terms of Service</h1>
+        <p class="text-muted">Last Updated: 2026</p>
+    </div>
+
+    <div class="card shadow-lg border-0 p-4">
+
+        <h4 class="text-primary mb-3">1. Introduction</h4>
+        <p>
+            Welcome to <strong>NeuroCardioAI</strong>. By accessing or using this platform,
+            you agree to comply with these Terms of Service. This system provides 
+            AI-powered stroke risk prediction to assist users and healthcare professionals.
+        </p>
+
+        <h4 class="text-primary mt-4 mb-3">2. Medical Disclaimer</h4>
+        <div class="alert alert-warning">
+            NeuroCardioAI predictions are generated using Artificial Intelligence models and 
+            are intended for <strong>informational and research purposes only</strong>.  
+            They do NOT replace professional medical advice, diagnosis, or treatment.  
+            Always consult a qualified healthcare provider before making medical decisions.
+        </div>
+
+        <h4 class="text-primary mt-4 mb-3">3. User Responsibilities</h4>
+        <ul class="list-group list-group-flush mb-3">
+            <li class="list-group-item">Provide accurate and truthful personal and health information</li>
+            <li class="list-group-item">Maintain confidentiality of account credentials</li>
+            <li class="list-group-item">Use the platform only for lawful and ethical purposes</li>
+            <li class="list-group-item">Avoid unauthorized access or system misuse</li>
+        </ul>
+
+        <h4 class="text-primary mt-4 mb-3">4. AI Prediction Limitations</h4>
+        <p>
+            The prediction results are based on machine learning algorithms and historical datasets. 
+            While we strive for high accuracy, the system cannot guarantee 100% correctness.
+            Users must verify results with certified medical professionals.
+        </p>
+
+        <h4 class="text-primary mt-4 mb-3">5. Service Availability</h4>
+        <p>
+            NeuroCardioAI reserves the right to modify, suspend, or discontinue services 
+            at any time without prior notice to improve system performance or security.
+        </p>
+
+        <h4 class="text-primary mt-4 mb-3">6. Limitation of Liability</h4>
+        <p>
+            NeuroCardioAI shall not be held liable for any direct or indirect damages, 
+            including medical decisions made based on AI predictions, data loss, or system interruptions.
+        </p>
+
+        <h4 class="text-primary mt-4 mb-3">7. Changes to Terms</h4>
+        <p>
+            These Terms may be updated periodically. Continued use of the platform 
+            indicates acceptance of the updated terms.
+        </p>
+
+        <div class="text-center mt-5">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary px-4 py-2">
+                Back to Registration
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

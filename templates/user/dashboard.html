@@ -1,0 +1,442 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - NeuroCardioAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid dashboard-page py-4">
+    <div class="row g-4">
+
+        <!-- Sidebar -->
+        <div class="col-lg-3 col-xl-2">
+            <div class="dashboard-sidebar">
+                <div class="user-info text-center p-3">
+                    <h5>{{ current_user.full_name or current_user.username }}</h5>
+                    <p class="text-muted mb-0">
+                        Member since {{ current_user.created_at.strftime('%B %Y') if current_user.created_at else 'N/A' }}
+                    </p>
+                </div>
+
+                <div class="nav flex-column nav-pills" id="dashboard-tabs" role="tablist">
+                    <a class="nav-link active" data-bs-toggle="pill" href="#overview" role="tab">Overview</a>
+                    <a class="nav-link" data-bs-toggle="pill" href="#predictions" role="tab">My Predictions</a>
+                    <a class="nav-link" data-bs-toggle="pill" href="#settings" role="tab">Settings</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9 col-xl-10">
+            <div class="tab-content">
+
+                <!-- OVERVIEW -->
+                <div class="tab-pane fade show active" id="overview">
+                    <div class="mb-4">
+                        <h2>Welcome back, {{ current_user.full_name or current_user.username }}!</h2>
+                        <p class="text-muted">Here's your health overview</p>
+                    </div>
+
+                    <!-- Stat Cards -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6 col-xl-3">
+                            <div class="stat-card">
+                                <div class="stat-icon brain-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <h3>{{ stats.brain_predictions | default(0) }}</h3>
+                                    <p>Brain Scans</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-xl-3">
+                            <div class="stat-card">
+                                <div class="stat-icon heart-icon">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <h3>{{ stats.heart_predictions | default(0) }}</h3>
+                                    <p>Heart Scans</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-xl-3">
+                            <div class="stat-card">
+                                <div class="stat-icon alert-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="stat-details">
+                                    {% if current_risk_value is not none %}
+                                        <h3>{{ "%.1f"|format(current_risk_value) }}%</h3>
+                                        <p>{{ current_risk_level }}</p>
+                                    {% else %}
+                                         <h3>--</h3>
+                                        <p>No Data</p>
+                                     {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-xl-3">
+                            <div class="stat-card">
+                                <div class="stat-icon checkup-icon">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div class="stat-details">
+                                    <h3>{{ stats.last_checkup | default('N/A') }}</h3>
+                                    <p>Last Checkup</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-xl-8">
+                            <div class="card chart-card h-100">
+                                <div class="card-header">Risk Trend Analysis</div>
+                                <div class="card-body">
+                                    <div class="chart-box" style="position: relative; height: 350px;">
+                                        <canvas id="riskChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-4">
+    <div class="card risk-level-card h-100">
+        <div class="card-header">Current Risk Level</div>
+        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+            <div class="gauge-wrapper">
+                <canvas id="riskGauge"></canvas>
+                <div class="gauge-text">
+                    <h3>{{ "%.1f"|format(current_risk_value | default(0)) }}%</h3>
+                    <p>{{ current_risk_level | default('Low') }}</p>
+                </div>
+            </div>
+            <p class="risk-note mt-3 mb-3 text-center">
+                Based on latest prediction results
+            </p>
+            <a href="{{ url_for('main.prediction') }}" class="btn btn-primary">
+                New Prediction
+            </a>
+        </div>
+    </div>
+</div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="row g-4 mt-1">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">Recent Activity</div>
+                                <div class="card-body">
+                                    <div class="timeline">
+                                        {% if recent_activities %}
+                                            {% for activity in recent_activities %}
+                                            <div class="timeline-item mb-3">
+                                                <div class="timeline-marker bg-{{ activity.color }}"></div>
+                                                <div class="timeline-content">
+                                                    <h6 class="mb-1">
+                                                        {% if activity.icon == 'brain' %}
+                                                            <i class="fas fa-brain me-2 text-primary"></i>
+                                                        {% else %}
+                                                            <i class="fas fa-heart me-2 text-danger"></i>
+                                                        {% endif %}
+                                                        {{ activity.title }}
+                                                    </h6>
+                                                    <p class="mb-1">{{ activity.description }}</p>
+                                                    <small class="text-muted">{{ activity.timestamp }}</small>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p class="text-muted mb-0">No recent activity available.</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PREDICTIONS -->
+                <div class="tab-pane fade" id="predictions">
+    
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">My Predictions</h2>
+            <p class="text-muted mb-0">Track your stroke risk history</p>
+        </div>
+        <span class="badge bg-light text-dark px-3 py-2">
+            {{ predictions|length }} Records
+        </span>
+    </div>
+
+    <!-- Card -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Risk</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% if predictions %}
+                            {% for prediction in predictions %}
+                            <tr>
+
+                                <!-- Date -->
+                                <td>
+                                    <i class="fas fa-calendar-alt text-muted me-2"></i>
+                                    {{ prediction.created_at.strftime('%d %b %Y, %H:%M') if prediction.created_at else 'N/A' }}
+                                </td>
+
+                                <!-- Type -->
+                                <td>
+                                    <span class="badge bg-info text-dark px-3 py-2">
+                                        {{ prediction.prediction_type | capitalize }}
+                                    </span>
+                                </td>
+
+                                <!-- Risk -->
+                                <td style="width: 260px;">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-semibold">
+                                            {{ "%.1f"|format(prediction.risk_score) }}%
+                                        </span>
+
+                                        <!-- Risk Label -->
+                                        <span class="small 
+                                            {% if prediction.risk_score < 30 %}text-success
+                                            {% elif prediction.risk_score < 60 %}text-warning
+                                            {% else %}text-danger{% endif %}">
+                                            
+                                            {% if prediction.risk_score < 30 %}
+                                                Low
+                                            {% elif prediction.risk_score < 60 %}
+                                                Moderate
+                                            {% else %}
+                                                High
+                                            {% endif %}
+                                        </span>
+                                    </div>
+
+                                    <!-- Progress Bar -->
+                                    <div class="progress mt-1" style="height: 8px;">
+                                        <div class="progress-bar 
+                                            {{ 'bg-success' if prediction.risk_score < 30 else 'bg-warning' if prediction.risk_score < 60 else 'bg-danger' }}"
+                                            style="width: {{ prediction.risk_score }}%">
+                                        </div>
+                                    </div>
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-5">
+                                    <i class="fas fa-folder-open fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted mb-0">No predictions available yet</p>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+                </div>
+
+                <!-- SETTINGS -->
+                <div class="tab-pane fade" id="settings">
+                    <h2 class="mb-3">Settings</h2>
+
+                    <form method="POST" action="{{ url_for('main.settings') }}#settings">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" id="name" name="name" class="form-control"
+                                   value="{{ current_user.full_name or '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" name="email" class="form-control"
+                                   value="{{ current_user.email or '' }}">
+                        </div>
+
+                        <hr>
+
+                        <h5>Change Password</h5>
+
+                        <div class="mb-3">
+                            <input type="password" name="current_password" class="form-control"
+                                   placeholder="Current Password">
+                        </div>
+
+                        <div class="mb-3">
+                            <input type="password" name="new_password" class="form-control"
+                                   placeholder="New Password">
+                        </div>
+
+                        <div class="mb-3">
+                            <input type="password" name="confirm_password" class="form-control"
+                                   placeholder="Confirm Password">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    try {
+        const trend_dates = JSON.parse('{{ trend_dates | safe }}');
+        const brain_risk_trend = JSON.parse('{{ brain_risk_trend | safe }}');
+        const heart_risk_trend = JSON.parse('{{ heart_risk_trend | safe }}');
+        const currentRiskValue = Number({{ current_risk_value | default(0) }});
+
+        let labels = Array.isArray(trend_dates) ? trend_dates : [];
+        let brainData = Array.isArray(brain_risk_trend) ? brain_risk_trend : [];
+        let heartData = Array.isArray(heart_risk_trend) ? heart_risk_trend : [];
+
+        if (labels.length === 0) {
+    document.getElementById("riskChart").style.display = "none";
+
+    const chartBox = document.querySelector(".chart-box");
+
+if (!document.getElementById("noDataMsg")) {
+    const msg = document.createElement("p");
+    msg.id = "noDataMsg";
+    msg.innerText = "No prediction data available yet.";
+    msg.style.textAlign = "center";
+    msg.style.marginTop = "120px";
+    msg.style.color = "gray";
+    chartBox.appendChild(msg);
+}
+    return;
+}
+
+        const riskChartCanvas = document.getElementById("riskChart");
+        if (riskChartCanvas) {
+            new Chart(riskChartCanvas.getContext("2d"), {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "Brain Risk",
+                            data: brainData,
+                            borderColor: "#3b5bdb",
+                            backgroundColor: "rgba(59, 91, 219, 0.08)",
+                            fill: true,
+                            tension: 0.3,
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            pointHoverRadius: 5,
+                            spanGaps: true
+                        },
+                        {
+                            label: "Heart Risk",
+                            data: heartData,
+                            borderColor: "#2f9e44",
+                            backgroundColor: "rgba(47, 158, 68, 0.08)",
+                            fill: false,
+                            tension: 0.3,
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            pointHoverRadius: 5,
+                            spanGaps: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: "top",
+                            labels: {
+                                boxWidth: 40,
+                                padding: 20
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 10
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+            const riskGaugeCanvas = document.getElementById("riskGauge");
+            if (riskGaugeCanvas) {
+                new Chart(riskGaugeCanvas.getContext("2d"), {
+                    type: "doughnut",
+                    data: {
+                        datasets: [{
+                            data: [currentRiskValue, 100 - currentRiskValue],
+                            backgroundColor: ["#8b1e3f", "#e9ecef"],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        rotation: 270,
+                        circumference: 180,
+                        cutout: "75%",
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: false }
+                        }
+                    }
+                });
+            }
+
+        if (window.location.hash === "#settings") {
+            const triggerEl = document.querySelector('[href="#settings"]');
+            if (triggerEl) {
+                new bootstrap.Tab(triggerEl).show();
+            }
+        }
+
+    } catch (error) {
+        console.error("Dashboard chart error:", error);
+    }
+});
+</script>
+{% endblock %}

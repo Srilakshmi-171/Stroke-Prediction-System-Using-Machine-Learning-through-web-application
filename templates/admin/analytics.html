@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Analytics</h2>
+
+<canvas id="adminBarChart"></canvas>
+<canvas id="adminPieChart"></canvas>
+
+<script src="/static/js/charts.js"></script>
+<script src="/static/js/admin.js"></script>
+<script>
+loadAdminCharts({{ risk_data | tojson }});
+</script>
+
+{% endblock %}

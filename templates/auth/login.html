@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Login - NeuroCardioAI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0 rounded-lg" data-aos="fade-up">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="mb-0"><i class="fas fa-sign-in-alt"></i> Welcome Back</h3>
+                </div>
+                <div class="card-body p-5">
+                    <form method="POST" action="{{ url_for('auth.login') }}">
+                        {{ form.hidden_tag() if form }}
+                        <div class="mb-4">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope"></i> Email Address
+                            </label>
+                            <input type="email" class="form-control form-control-lg" 
+                                   id="email" name="email" required 
+                                   placeholder="Enter your email">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock"></i> Password
+                            </label>
+                            <input type="password" class="form-control form-control-lg" 
+                                   id="password" name="password" required 
+                                   placeholder="Enter your password">
+                        </div>
+                        
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                            <label class="form-check-label" for="remember">Remember me</label>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('auth.forgot_password') }}" class="text-decoration-none">
+                            Forgot Password?
+                        </a>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="mb-0">Don't have an account? 
+                            <a href="{{ url_for('auth.register') }}" class="text-primary fw-bold">
+                                Register here
+                            </a>
+                        </p>
+                    </div>
+                </div>
+                <div class="card-footer bg-light py-3">
+                    <div class="small text-center">
+                        <i class="fas fa-shield-alt text-primary"></i> 
+                        Your information is encrypted and secure
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Demo Credentials -->
+            <div class="card mt-4 border-info" data-aos="fade-up" data-aos-delay="100">
+                <div class="card-body">
+                    <h5 class="card-title text-info">
+                        <i class="fas fa-info-circle"></i> Demo Credentials
+                    </h5>
+                    <div class="row">
+                        <div class="col-6">
+                            <p class="mb-1"><strong>Admin:</strong></p>
+                            <p class="mb-0">Email: admin@neurocardio.com</p>
+                            <p class="mb-0">Password: Admin@123</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="mb-1"><strong>Patient:</strong></p>
+                            <p class="mb-0">Email: patient@example.com</p>
+                            <p class="mb-0">Password: Patient@123</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# Generated files and testing
+catboost_info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary files
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
+*.backup
+
+# Uploaded patient files
+static/uploads/
+static/mri_uploads/
+
+# Generated heatmaps and reports
+static/heatmaps/
+static/reports/
+
+# Local database
+database/database.db
+
+# Python distribution/build files
+build/
+dist/
+*.egg-info/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Local medical datasets - do not publish
+mri_dataset/
+stroke_dataset.csv

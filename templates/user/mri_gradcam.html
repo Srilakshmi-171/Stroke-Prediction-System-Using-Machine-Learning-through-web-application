@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}MRI Analysis - NeuroCardioAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/gradcam.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <h1 class="display-5 fw-bold">MRI Analysis with Grad-CAM</h1>
+            <p class="lead">Upload your MRI scan for AI-powered analysis and visualization</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-upload"></i> Upload MRI Scan</h5>
+                </div>
+                <div class="card-body">
+                    <form id="mriUploadForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">Scan Type</label>
+                            <select class="form-select" name="scan_type" id="scanType" required>
+                                <option value="brain">Brain MRI</option>
+                                <option value="heart">Heart MRI</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Select Image</label>
+                            <input type="file" class="form-control" name="mri_scan" id="mriFile" 
+                                   accept="image/*,.dcm" required>
+                            <small class="text-muted">Supported: JPG, PNG, DICOM</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <img id="preview" src="#" alt="Preview" style="max-width: 100%; display: none;">
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" id="analyzeBtn">
+                                <i class="fas fa-microscope"></i> Analyze with Grad-CAM
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> About Grad-CAM</h5>
+                </div>
+                <div class="card-body">
+                    <p>Gradient-weighted Class Activation Mapping (Grad-CAM) is a technique that produces visual explanations for CNN-based models. It highlights the regions in the image that are most important for the model's prediction.</p>
+                    <ul>
+                        <li><strong>Red areas:</strong> High importance regions</li>
+                        <li><strong>Blue areas:</strong> Low importance regions</li>
+                        <li><strong>Green areas:</strong> Moderate importance</li>
+                    </ul>
+                    <p class="mb-0 text-muted">This helps doctors identify potential areas of concern in medical images.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <!-- Results will be displayed here -->
+            <div id="resultsContainer" style="display: none;">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-line"></i> Analysis Results</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="result-image">
+                                    <h6>Original Scan</h6>
+                                    <img id="originalImage" src="#" class="img-fluid rounded" alt="Original">
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="result-image">
+                                    <h6>Grad-CAM Heatmap</h6>
+                                    <img id="heatmapImage" src="#" class="img-fluid rounded" alt="Heatmap">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="findings-box mt-3 p-3 bg-light rounded">
+                            <h6><i class="fas fa-stethoscope"></i> Clinical Findings:</h6>
+                            <p id="findings"></p>
+                            
+                            <h6 class="mt-3">Confidence Score:</h6>
+                            <div class="progress">
+                                <div id="confidenceBar" class="progress-bar bg-success" role="progressbar" 
+                                     style="width: 0%"></div>
+                            </div>
+                            <p id="confidenceText" class="mt-1 text-center"></p>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button class="btn btn-success" onclick="downloadReport()">
+                                <i class="fas fa-download"></i> Download Report
+                            </button>
+                            <button class="btn btn-primary" onclick="newAnalysis()">
+                                <i class="fas fa-redo-alt"></i> New Analysis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" style="display: none;" class="text-center">
+                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5 class="mt-3">Analyzing MRI with AI...</h5>
+                <p class="text-muted">Generating Grad-CAM visualization</p>
+                <div class="progress mt-3">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- History Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="mb-4">Previous Analyses</h3>
+            <div class="row" id="historyContainer">
+                <!-- History items will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('mriFile').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('preview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+document.getElementById('mriUploadForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    // Show loading
+    document.getElementById('loadingSpinner').style.display = 'block';
+    document.getElementById('resultsContainer').style.display = 'none';
+    document.getElementById('analyzeBtn').disabled = true;
+    
+    // Send to server
+    fetch('/mri/analyze', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Display results
+            document.getElementById('originalImage').src = data.original_url;
+            document.getElementById('heatmapImage').src = data.heatmap_url;
+            document.getElementById('findings').textContent = data.findings;
+            
+            const confidence = data.confidence * 100;
+            document.getElementById('confidenceBar').style.width = confidence + '%';
+            document.getElementById('confidenceText').textContent = confidence.toFixed(1) + '%';
+            
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            // Refresh history
+            loadHistory();
+            
+            // Show success message
+            showNotification('Analysis completed successfully!', 'success');
+        } else {
+            throw new Error(data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('loadingSpinner').style.display = 'none';
+        document.getElementById('analyzeBtn').disabled = false;
+        showNotification('Error: ' + error.message, 'danger');
+    });
+});
+
+function loadHistory() {
+    fetch('/mri/history')
+    .then(response => response.json())
+    .then(data => {
+        const container = document.getElementById('historyContainer');
+        container.innerHTML = '';
+        
+        data.analyses.forEach(analysis => {
+            const date = new Date(analysis.created_at).toLocaleDateString();
+            const col = document.createElement('div');
+            col.className = 'col-md-4 mb-3';
+            col.innerHTML = `
+                <div class="card history-card" onclick="viewAnalysis('${analysis.id}')">
+                    <img src="${analysis.heatmap_url}" class="card-img-top" alt="Analysis">
+                    <div class="card-body">
+                        <h6 class="card-title">${analysis.scan_type} MRI</h6>
+                        <p class="card-text">${date}</p>
+                        <small class="text-muted">Confidence: ${(analysis.confidence * 100).toFixed(1)}%</small>
+                    </div>
+                </div>
+            `;
+            container.appendChild(col);
+        });
+    });
+}
+
+function viewAnalysis(id) {
+    window.location.href = `/mri/view/${id}`;
+}
+
+function downloadReport() {
+    // Implement report download
+    alert('Download functionality coming soon!');
+}
+
+function newAnalysis() {
+    document.getElementById('mriUploadForm').reset();
+    document.getElementById('preview').style.display = 'none';
+    document.getElementById('resultsContainer').style.display = 'none';
+    document.getElementById('analyzeBtn').disabled = false;
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+    notification.style.zIndex = '9999';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+// Load history on page load
+document.addEventListener('DOMContentLoaded', loadHistory);
+</script>
+
+<style>
+.history-card {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.history-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--box-shadow-hover);
+}
+
+.result-image {
+    text-align: center;
+}
+
+.result-image img {
+    max-height: 250px;
+    object-fit: contain;
+}
+
+.findings-box {
+    border-left: 4px solid var(--primary-color);
+}
+</style>
+{% endblock %}

@@ -1,0 +1,115 @@
+<div class="patient-details">
+    <div class="row">
+        <div class="col-md-4 text-center">
+            <img src="{{ url_for('static', filename='images/user-avatar.png') }}" 
+                 class="rounded-circle mb-3" width="120" height="120">
+            <h5>{{ patient.user.full_name or patient.user.username }}</h5>
+            <p class="text-muted">{{ patient.user.email }}</p>
+            
+            {% if patient.user.is_active %}
+                <span class="badge bg-success">Active</span>
+            {% else %}
+                <span class="badge bg-danger">Inactive</span>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-8">
+            <div class="detail-group">
+                <h6>Personal Information</h6>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="label">Age</div>
+                        <div class="value">{{ patient.user.age or 'N/A' }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Gender</div>
+                        <div class="value">{{ patient.user.gender or 'N/A' }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Phone</div>
+                        <div class="value">{{ patient.user.phone or 'N/A' }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Address</div>
+                        <div class="value">{{ patient.user.address or 'N/A' }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-group mt-3">
+                <h6>Medical Information</h6>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="label">Medical Record #</div>
+                        <div class="value">{{ patient.medical_record_number or 'N/A' }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Blood Type</div>
+                        <div class="value">{{ patient.blood_type or 'N/A' }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Allergies</div>
+                        <div class="value">{{ patient.allergies or 'None' }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Medications</div>
+                        <div class="value">{{ patient.medications or 'None' }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-group mt-3">
+                <h6>Emergency Contact</h6>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="label">Name</div>
+                        <div class="value">{{ patient.emergency_contact or 'N/A' }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Phone</div>
+                        <div class="value">{{ patient.emergency_phone or 'N/A' }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-group mt-3">
+                <h6>Recent Predictions</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Risk</th>
+                                <th>Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pred in predictions[:5] %}
+                            <tr>
+                                <td>{{ pred.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ pred.prediction_type }}</td>
+                                <td>{{ "%.1f"|format(pred.risk_score) }}%</td>
+                                <td>
+                                    <span class="badge bg-{{ pred.risk_level|risk_color }}">
+                                        {{ pred.risk_level }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-6">
+                    <small class="text-muted">Registered: {{ patient.user.created_at.strftime('%Y-%m-%d') }}</small>
+                </div>
+                <div class="col-6 text-end">
+                    <small class="text-muted">Last Login: {{ patient.user.last_login.strftime('%Y-%m-%d %H:%M') if patient.user.last_login else 'Never' }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

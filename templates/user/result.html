@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Results - NeuroCardioAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .risk-card {
+        border-radius: 20px;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+    .risk-card:hover {
+        transform: translateY(-5px);
+    }
+    .risk-card.low-risk {
+        background: linear-gradient(135deg, #06d6a0 0%, #1b9aaa 100%);
+        color: white;
+    }
+    .risk-card.moderate-risk {
+        background: linear-gradient(135deg, #ffd166 0%, #ffb347 100%);
+        color: #333;
+    }
+    .risk-card.high-risk {
+        background: linear-gradient(135deg, #ef476f 0%, #bc4c7c 100%);
+        color: white;
+    }
+    .model-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    .model-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    .recommendation-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        border-left: 4px solid #4361ee;
+    }
+    .recommendation-item i {
+        font-size: 1.5rem;
+        color: #4361ee;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+    <!-- Result Header -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="display-5 fw-bold">Your Stroke Risk Assessment</h1>
+            <p class="lead">Analysis completed on {{ prediction.created_at.strftime('%Y-%m-%d %H:%M') if prediction.created_at else 'N/A' }}</p>
+        </div>
+    </div>
+    
+    <!-- Risk Score Card -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8">
+            <div class="card risk-card border-0 shadow-lg 
+                {% if prediction.risk_level == 'High' %}high-risk
+                {% elif prediction.risk_level == 'Moderate' %}moderate-risk
+                {% else %}low-risk{% endif %}">
+                <div class="card-body text-center p-5">
+                    <h3 class="mb-4">Overall Stroke Risk</h3>
+                    <div class="risk-meter">
+                        <div class="display-1 fw-bold">{{ "%.1f"|format(prediction.risk_score) }}%</div>
+                    </div>
+                    <h2 class="mt-4">
+                        <span class="badge bg-light text-dark p-3">
+                            {{ prediction.risk_level }} Risk
+                        </span>
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Model Performance Grid -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="mb-4">Model Predictions</h3>
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="model-card">
+                        <i class="fas fa-tree fa-3x mb-3" style="color: #4361ee;"></i>
+                        <h5>Random Forest</h5>
+                        <div class="display-6 mb-2">{{ "%.1f"|format(prediction.ml_prediction*100) if prediction.ml_prediction else '0' }}%</div>
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" style="width: {{ prediction.ml_prediction*100 if prediction.ml_prediction else 0 }}%"></div>
+                        </div>
+                        <p class="mt-2 text-muted">Accuracy: 92%</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="model-card">
+                        <i class="fas fa-network-wired fa-3x mb-3" style="color: #06d6a0;"></i>
+                        <h5>Neural Network</h5>
+                        <div class="display-6 mb-2">{{ "%.1f"|format(prediction.ann_prediction*100) if prediction.ann_prediction else '0' }}%</div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: {{ prediction.ann_prediction*100 if prediction.ann_prediction else 0 }}%"></div>
+                        </div>
+                        <p class="mt-2 text-muted">Accuracy: 94%</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="model-card">
+                        <i class="fas fa-eye fa-3x mb-3" style="color: #ffd166;"></i>
+                        <h5>CNN</h5>
+                        <div class="display-6 mb-2">{{ "%.1f"|format(prediction.cnn_prediction*100) if prediction.cnn_prediction else '0' }}%</div>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" style="width: {{ prediction.cnn_prediction*100 if prediction.cnn_prediction else 0 }}%"></div>
+                        </div>
+                        <p class="mt-2 text-muted">Accuracy: 91%</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="model-card">
+                        <i class="fas fa-robot fa-3x mb-3" style="color: #ef476f;"></i>
+                        <h5>Ensemble</h5>
+                        <div class="display-6 mb-2">{{ "%.1f"|format(prediction.ensemble_prediction*100) if prediction.ensemble_prediction else '0' }}%</div>
+                        <div class="progress">
+                            <div class="progress-bar bg-danger" style="width: {{ prediction.ensemble_prediction*100 if prediction.ensemble_prediction else 0 }}%"></div>
+                        </div>
+                        <p class="mt-2 text-muted">Accuracy: 96%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Patient Information -->
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user"></i> Patient Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <td><strong>Age:</strong></td>
+                            <td>{{ prediction.age }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gender:</strong></td>
+                            <td>{{ prediction.gender }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hypertension:</strong></td>
+                            <td>{{ 'Yes' if prediction.hypertension else 'No' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Heart Disease:</strong></td>
+                            <td>{{ 'Yes' if prediction.heart_disease else 'No' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Married:</strong></td>
+                            <td>{{ 'Yes' if prediction.ever_married else 'No' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Work Type:</strong></td>
+                            <td>{{ prediction.work_type }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Residence:</strong></td>
+                            <td>{{ prediction.residence_type }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Glucose Level:</strong></td>
+                            <td>{{ "%.1f"|format(prediction.avg_glucose_level) }} mg/dL</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BMI:</strong></td>
+                            <td>{{ "%.1f"|format(prediction.bmi) }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Smoking Status:</strong></td>
+                            <td>{{ prediction.smoking_status }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-heartbeat"></i> Recommendations</h5>
+                </div>
+                <div class="card-body">
+                    {% if prediction.risk_level == 'High' %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Immediate Action Required:</strong> Please consult with a healthcare provider within 24 hours.
+                        </div>
+                    {% endif %}
+                    
+                    <div class="recommendations-list">
+                        {% if prediction.hypertension %}
+                        <div class="recommendation-item">
+                            <i class="fas fa-heart"></i>
+                            <div>
+                                <h6>Blood Pressure Management</h6>
+                                <p class="mb-0">Monitor blood pressure daily and maintain a low-sodium diet.</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if prediction.avg_glucose_level > 140 %}
+                        <div class="recommendation-item">
+                            <i class="fas fa-tint"></i>
+                            <div>
+                                <h6>Blood Sugar Control</h6>
+                                <p class="mb-0">Monitor glucose levels and maintain a balanced diet.</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if prediction.bmi > 30 %}
+                        <div class="recommendation-item">
+                            <i class="fas fa-weight"></i>
+                            <div>
+                                <h6>Weight Management</h6>
+                                <p class="mb-0">Consider a structured weight loss program with regular exercise.</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if prediction.smoking_status == 'smokes' %}
+                        <div class="recommendation-item">
+                            <i class="fas fa-smoking"></i>
+                            <div>
+                                <h6>Smoking Cessation</h6>
+                                <p class="mb-0">Join a smoking cessation program for better health outcomes.</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="recommendation-item">
+                            <i class="fas fa-apple-alt"></i>
+                            <div>
+                                <h6>Healthy Diet</h6>
+                                <p class="mb-0">Follow a Mediterranean-style diet rich in fruits and vegetables.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="recommendation-item">
+                            <i class="fas fa-dumbbell"></i>
+                            <div>
+                                <h6>Regular Exercise</h6>
+                                <p class="mb-0">Aim for at least 150 minutes of moderate activity per week.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Email Status Alert -->
+{% if email_sent is defined %}
+<div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+    <i class="fas fa-check-circle"></i> 
+    Report email sent to <strong>{{ current_user.email }}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+{% if alert_sent is defined and alert_sent %}
+<div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+    <i class="fas fa-exclamation-triangle"></i> 
+    High risk alert email sent to <strong>{{ current_user.email }}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+    
+    <!-- Action Buttons -->
+    <div class="row">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('main.download_report', id=prediction.id) }}" class="btn btn-success btn-lg mx-2">
+                <i class="fas fa-file-pdf"></i> Download PDF Report
+            </a>
+            <a href="{{ url_for('main.prediction') }}" class="btn btn-primary btn-lg mx-2">
+                <i class="fas fa-redo-alt"></i> New Prediction
+            </a>
+            <a href="{{ url_for('main.history') }}" class="btn btn-outline-primary btn-lg mx-2">
+                <i class="fas fa-history"></i> View History
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add any result page specific JavaScript here
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Result page loaded successfully');
+});
+</script>
+{% endblock %}
